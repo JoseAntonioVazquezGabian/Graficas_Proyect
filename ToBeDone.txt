@@ -1,0 +1,6 @@
+#Assets (los sumos)
+#Texturas (el suelo, los assets)
+#Armar una escena donde esten los assets
+#Sonido (fondo, y de reaccion con los jugadores)[https://threejs.org/docs/index.html?q=audio#api/en/audio/Audio+]
+#interfases de usuario
+#Botones para probar audio
