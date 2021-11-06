@@ -1,11 +1,14 @@
 import * as THREE from "./libs/three.js/r131/three.module.js"
-import {addMouseHandler} from "./sceneHandlers.js"
+import { OrbitControls } from './libs/three.js/r131/controls/OrbitControls.js';
 import * as dat from "./libs/dat.gui.module.js"
-import { OBJLoader } from '../libs/three.js/r131/loaders/OBJLoader.js';
-import { MTLLoader } from '../libs/three.js/r131/loaders/MTLLoader.js';
+import { OBJLoader } from './libs/three.js/r131/loaders/OBJLoader.js';
+import { GLTFLoader } from './libs/three.js/r131/loaders/GLTFLoader.js';
+//import * as csg from './libs/csg.js';
 
-let renderer = null, scene = null, camera = null,  sphere = null,  sphereGroup = null;
+let renderer = null, scene = null, camera = null,  sphere = null,  sphereGroup = null, orbitControls = null;
 
+let modelUrls = ["./resources/models/figure/scene.gltf", "./resources/models/figurhead/scene.gltf", "./resources/models/LPSP_PersonalShip.gltf", "./resources/models/LPSP_QuadFighter.gltf"];
+let objects = [];
 const duration = 5000; // ms
 let currentTime = Date.now();
 
@@ -14,6 +17,7 @@ function main()
     const canvas = document.getElementById("webglcanvas");
     createScene(canvas);
     update();
+    orbitControls.update();
 }
 
 /**
@@ -66,12 +70,14 @@ function createScene(canvas)
     const textureLoader = new THREE.TextureLoader();
 
     // Set the background color 
-    scene.background = textureLoader.load("./resources/textures/checkeredTexture.jpeg")
+    // scene.background = textureLoader.load("./resources/textures/checkeredTexture.jpeg")
 
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
     camera.position.z = 10;
     scene.add(camera);
+
+    orbitControls = new OrbitControls(camera, renderer.domElement);
     
 
     const listener = new THREE.AudioListener();
@@ -98,12 +104,16 @@ function createScene(canvas)
 
     // This light globally illuminates all objects in the scene equally.
     // Cannot cast shadows
-    const ambientLight = new THREE.AmbientLight(0xffccaa, 0.2);
+    const ambientLight = new THREE.AmbientLight(0xffccaa, 1);
     scene.add(ambientLight);
 
     const textureUrl = "./resources/textures/checkeredTexture.jpeg";
     const texture = new THREE.TextureLoader().load(textureUrl);
-    const material = new THREE.MeshPhongMaterial({ map: texture });
+    const material = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide});
+
+    var planeGeo = new THREE.PlaneGeometry(100,100);
+    var planeMesh = new THREE.Mesh(planeGeo, material);
+    scene.add(planeMesh);
 
     var sphereGroup = new THREE.Object3D();
     // Move the sphere group up and back from the cube
@@ -111,22 +121,26 @@ function createScene(canvas)
 
     // Create the sphere geometry
     var geometry = new THREE.SphereGeometry(1, 20, 20);
+
+    // var spherePruebaGeo = csg.sphere();
+
+    // var spherePruebaMesh = new THREE.Mesh(spherePruebaGeo, material);
+
+    // sphereGroup.add(spherePruebaMesh);
     
     // And put the geometry and material together into a mesh
     sphere = new THREE.Mesh(geometry, material);
 
     // Add the sphere mesh to our group
-    sphereGroup.add( sphere );
-
-    // Create the cone geometry
-    geometry = new THREE.CylinderGeometry(0, .333, .444, 20, 20);
+    //sphereGroup.add( sphere );
 
     
     // Now add the group to our scene
     scene.add( sphereGroup );
 
     // add mouse handling so we can rotate the scene
-    addMouseHandler(canvas, sphereGroup);
+
+    loadGLTF();
 
   
     sphereGroup.updateMatrixWorld();
@@ -174,6 +188,48 @@ async function loadObj(objModelUrl, objectList)
     catch (err) 
     {
         onError(err);
+    }
+}
+
+async function loadGLTF()
+{
+    const gltfLoader = new GLTFLoader();
+
+    const modelsPromises = modelUrls.map(url =>{
+        return gltfLoader.loadAsync(url);
+    });
+
+    try
+    {
+        const results = await Promise.all(modelsPromises);
+
+        results.forEach( (result, index) =>
+        {
+            console.log(result);
+
+            const object = result.scene.children[0];
+
+            object.scale.set( 0.05, 0.05, 0.05 );
+            object.position.x = index > 0 ?  - Math.random() * 16: 0;
+            object.position.y = index == 0 ?  - 4 :  8;
+            object.position.z = -50 - Math.random() * 50;
+
+            object.castShadow = true;
+            object. receiveShadow = true;
+
+            // object.mixer = new THREE.AnimationMixer( scene );
+            // object.action = object.mixer.clipAction( result.animations[0], object).setDuration( 1.0 );
+
+            // object.action.play();
+            
+            objects.push(object);           
+
+            scene.add(object);
+        });        
+    }
+    catch(err)
+    {
+        console.error(err);
     }
 }
 

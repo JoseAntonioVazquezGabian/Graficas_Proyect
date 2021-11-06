@@ -76,7 +76,7 @@ function addMouseHandler(canvas, group)
     canvas.addEventListener( 'mousedown', e => onMouseDown(e), false );
     canvas.addEventListener( 'mouseup',  e => onMouseUp(e), false );
 
-    // document.getElementById('slider').oninput = (e) => scaleScene(e.target.value, group);
+    document.getElementById('slider').oninput = (e) => scaleScene(e.target.value, group);
 }
 
 export { addMouseHandler }
