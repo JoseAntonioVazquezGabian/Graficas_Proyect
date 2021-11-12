@@ -142,6 +142,10 @@ function createScene(canvas)
 
     loadGLTF();
 
+    //Plataforma y escenario
+
+    crearEscenario(texture);
+
   
     sphereGroup.updateMatrixWorld();
 
@@ -191,6 +195,17 @@ async function loadObj(objModelUrl, objectList)
     }
 }
 
+//Plataforma o espacio de pelea
+
+function crearEscenario(texture){
+    let escenarioGeo = new THREE.SphereGeometry(30, 32, 16, 0, Math.PI * 2, 0, 0.5);
+    let escenario = new THREE.Mesh(escenarioGeo, new THREE.MeshPhongMaterial({map: texture, side: THREE.DoubleSide}))
+    scene.add(escenario);
+    return escenario;
+
+
+}
+
 async function loadGLTF()
 {
     const gltfLoader = new GLTFLoader();
@@ -231,6 +246,8 @@ async function loadGLTF()
     {
         console.error(err);
     }
+
+    
 }
 
 main();
