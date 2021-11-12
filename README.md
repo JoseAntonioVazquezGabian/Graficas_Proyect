@@ -18,7 +18,7 @@ Tendrá un escenario cóncavo el cual se reducirá dependiendo del tiempo que va
 - La interacción que podrá tener el usuario será a través de las teclas "W,A,S,D" o las flechas que le permitirán mover a su personaje en la dirección indicada.
 - El usuario podrá seleccionar su bola (el color) así como el personaje (de diferentes modelos que tendremos disponibles) a usar dando personalización al jugador.
 - Activar o desactivar el sonido.
-- Poner pausa.
+
 
 # Menú:
 
