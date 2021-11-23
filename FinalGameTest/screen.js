@@ -10,7 +10,7 @@ let scene, renderer;
 // rotar camara
 let camaraRotar;
 // GUI
-let guiGroup;
+let guiGroup, winGroup, lossGroup;
 let buttons = [];
 let mutedo;
 // prefabs
@@ -52,8 +52,12 @@ function init() {
 
     // GUI
     guiGroup = new THREE.Group();
+    winGroup = new THREE.Group();
+    lossGroup = new THREE.Group();
     createGUI(guiGroup);
     scene.add(guiGroup);
+    scene.add(winGroup);
+    scene.add(lossGroup);
     mutedo = false;
 
     // eventos del juego
@@ -96,7 +100,7 @@ function init() {
             camera.position.z = 20;
             camera.position.y = 40;
         }
-        if(key == "escape" && menu == "gameScreen")
+        if(key == "escape")
         {
             menu = "startScreen"; 
             escenarioPrefab.ponerPared();
@@ -188,6 +192,12 @@ function init() {
             // Falta Añadir sonido
             mutedo = !mutedo;
             createGUI(guiGroup);
+        }
+        if(key == "g"){
+            menu = "ganaste";
+        }
+        if(key == "u"){
+            menu = "perdiste";
         }
     });
 
@@ -319,6 +329,16 @@ function createGUI(group)
 
     group.add(options);
     
+}
+
+function createGUIWinLoss(text,group)
+{   
+    destroyGUI()
+    let options = new THREE.Group();
+    options.position.set(0,0,0);
+    loadTextOpt(options,text,-0.7,4.5,0);
+    buttons.push(options);
+    group.add(options);
 }
 
 function loadTextOpt(group,text,x,y,z)
@@ -471,13 +491,19 @@ function animate()
             break;
     
         case 'ganaste':
+            createGUIWinLoss("Ganaste",winGroup);
             console.log("ganaste");
-            // Falta
+            camaraRotar.rotation.y += 0.005;
+            camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+            updateGUI();
             break;
         
         case 'perdiste':
+            createGUIWinLoss("Perdiste",lossGroup);
             console.log("perdiste");
-            // Falta
+            camaraRotar.rotation.y += 0.005;
+            camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+            updateGUI();
             break;
             
     }
