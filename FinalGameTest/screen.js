@@ -195,9 +195,11 @@ function init() {
         }
         if(key == "g"){
             menu = "ganaste";
+            createGUIWinLoss("Ganaste",lossGroup);
         }
         if(key == "u"){
             menu = "perdiste";
+            createGUIWinLoss("Perdiste",lossGroup);
         }
     });
 
@@ -335,8 +337,10 @@ function createGUIWinLoss(text,group)
 {   
     destroyGUI()
     let options = new THREE.Group();
-    options.position.set(0,0,0);
-    loadTextOpt(options,text,-0.7,4.5,0);
+    camera.position.set(10 + jugadorPrefab.getPosX(), 10 + jugadorPrefab.getPosY(), jugadorPrefab.getPosZ());
+    options.position.set(jugadorPrefab.getPosX(),jugadorPrefab.getPosY(),jugadorPrefab.getPosZ());
+    loadTextOpt(options,text,-1.5,4.5,0);
+    options.rotation.y = camaraRotar.rotation.y + Math.PI/2;
     buttons.push(options);
     group.add(options);
 }
@@ -435,10 +439,14 @@ function animate()
                 if(jugadorPrefab.muerto())
                 {
                     menu = "perdiste"
+                    createGUIWinLoss("Perdiste",lossGroup);
+                    escenarioPrefab.ponerPared();
                 }
                 if(escenarioPrefab.getJugadores() == 0)
                 {
                     menu = "ganaste"
+                    createGUIWinLoss("Ganaste",winGroup);
+                    escenarioPrefab.ponerPared();
                 }
                 if(w)
                 {
@@ -491,18 +499,16 @@ function animate()
             break;
     
         case 'ganaste':
-            createGUIWinLoss("Ganaste",winGroup);
             console.log("ganaste");
             camaraRotar.rotation.y += 0.005;
-            camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+            camera.lookAt(new THREE.Vector3(jugadorPrefab.getPosX(), jugadorPrefab.getPosY(), jugadorPrefab.getPosZ()));
             updateGUI();
             break;
         
         case 'perdiste':
-            createGUIWinLoss("Perdiste",lossGroup);
             console.log("perdiste");
             camaraRotar.rotation.y += 0.005;
-            camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+            camera.lookAt(new THREE.Vector3(jugadorPrefab.getPosX(), jugadorPrefab.getPosY(), jugadorPrefab.getPosZ()));
             updateGUI();
             break;
             
