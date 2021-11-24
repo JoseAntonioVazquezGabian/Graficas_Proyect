@@ -27,6 +27,7 @@ export default class escenario
         this.spownRate = 0;
         this.arrNPC = [];
         this.escenarioPrefab = new THREE.Group();
+        //Falta cambiar sprites suelo
         geometry = new THREE.BoxGeometry(this.jugador.getTamano(),0.5,this.jugador.getTamano());
         material = new THREE.MeshLambertMaterial({ color: 0x111111});
         mesh = new THREE.Mesh(geometry,material);
@@ -34,22 +35,22 @@ export default class escenario
         this.escenarioPrefab.add(mesh);
         
         // paredes
-        //Falta cambiar sprites
+        //Falta cambiar sprites pared
         geometry = new THREE.BoxGeometry(this.jugador.getTamano(),20,0);
         material = new THREE.MeshLambertMaterial({ color: 0x111111});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(0,10,this.jugador.getTamano()/2);
         this.escenarioPrefab.add(mesh);
 
-        //Falta cambiar sprites
+        //Falta cambiar sprites pared
         geometry = new THREE.BoxGeometry(this.jugador.getTamano(),20,0);
         material = new THREE.MeshLambertMaterial({ color: 0x111111});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(0,10,-this.jugador.getTamano()/2);
         this.escenarioPrefab.add(mesh);
 
-        //Falta cambiar sprites
-        geometry = new THREE.BoxGeometry(0,20,this.jugador.getTamano());
+        //Falta cambiar sprites pared
+        geometry = new THREE.BoxGeoetry(0,20,this.jugador.getTamano());
         material = new THREE.MeshLambertMaterial({ color: 0x111111});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(-this.jugador.getTamano()/2,10,0);
@@ -71,7 +72,12 @@ export default class escenario
 
     ponerPared()
     {
-        //Falta cambiar sprites
+        try
+        {
+            this.quitarPared();
+        }
+        catch{}
+        //Falta cambiar sprites pared
         geometry = new THREE.BoxGeometry(0,20,this.jugador.getTamano());
         material = new THREE.MeshLambertMaterial({ color: 0x111111});
         this.pared = new THREE.Mesh(geometry,material);
@@ -86,6 +92,7 @@ export default class escenario
         this.newPowerUp(this.jugador.getTamano()/10);
         this.arrNPC.forEach(element => element.kill());
         this.arrNPC = [];
+        this.ponerPared();
     }
 
     getJugadores()
@@ -98,7 +105,7 @@ export default class escenario
         this.cantJugadores = j;
         for(let i = 0; i < this.cantJugadores; i++)
         {
-            this.arrNPC.push(new npc(i * 3, 0 ,0,this.scene,this.jugador));
+            this.arrNPC.push(new npc(this.getRandomIntPos(), 0 ,this.getRandomIntPos(),this.scene,this.jugador));
         }
     }
 
@@ -131,8 +138,7 @@ export default class escenario
             let j = new npc(getRandomIntPos(), 0, getRandomIntPos(),this.scene,this.jugador);
         }
     }
-
-    //falta cambiar el color de lo gris del suelo (de preferencia pasto)
+    
     update()
     {
         this.powerUps.array.forEach(element => {
@@ -143,8 +149,18 @@ export default class escenario
                 }
             }
         });
+        this.arrNPC.forEach(element => {
+            if(element.isDead()){
+                const index = this.arrNPC.indexOf(element);
+                if (index > -1) {
+                    this.arrNPC.splice(index, 1);
+                }
+                this.cantJugadores -= 1;
+                element.kill();
+            }
+        });
         this.spownRate += 1;
-        if(this.spownRate > 300)
+        if(this.spownRate > 100)
         {
             this.spownRate = 0;
             this.newPowerUp(1);

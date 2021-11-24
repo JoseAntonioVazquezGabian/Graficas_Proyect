@@ -27,7 +27,7 @@ animate();
 
 function init() {
     // powerUpReset
-    jugadores = 1;
+    jugadores = 2;
 
     // web gl cambas
     const canvas = document.getElementById("webglcanvas");
@@ -169,7 +169,7 @@ function init() {
         }
         if(key == "-" && menu == "startScreen")
         {
-            if(jugadores > 1)
+            if(jugadores > 2)
             {
                 jugadores -= 1;
                 createGUI(guiGroup);
@@ -189,12 +189,10 @@ function init() {
             p = false;
             camera.position.set(0, 10, 0);
             jugadorPrefab.changeVida(5);
-            destroyGUI()
+            destroyGUI();
         }
         if(key == "m")
         {
-            // Falta Añadir sonido
-
             mutedo = !mutedo;
             if(mutedo){
                 sound.setVolume(0.0);
@@ -202,21 +200,9 @@ function init() {
                 sound.setVolume(0.5);
             }
             
-            if(menu = 'startScreen'){
+            if(menu == 'startScreen'){
                 createGUI(guiGroup);
             }
-        }
-        if(key == "g"){
-            menu = "ganaste";
-            createGUIWinLoss("Ganaste",lossGroup);
-            escenarioPrefab.ponerPared();
-            jugadorPrefab.playerPrefab.position.set(0,2,0);
-        }
-        if(key == "u"){
-            menu = "perdiste";
-            createGUIWinLoss("Perdiste",lossGroup);
-            escenarioPrefab.ponerPared();
-            jugadorPrefab.playerPrefab.position.set(0,2,0);
         }
     });
 
@@ -264,7 +250,7 @@ function init() {
 
     // load a sound and set it as the Audio object's buffer
     const audioLoader = new THREE.AudioLoader();
-    audioLoader.load( '../resources/sounds/song.ogg', function( buffer ) {
+    audioLoader.load( './sounds/song.ogg', function( buffer ) {
 	    sound.setBuffer( buffer );
 	    sound.setLoop( true );
 	    sound.setVolume( 0.5 );
@@ -470,20 +456,6 @@ function animate()
             }
             else
             {
-                if(jugadorPrefab.muerto())
-                {
-                    menu = "perdiste"
-                    createGUIWinLoss("Perdiste",lossGroup);
-                    escenarioPrefab.ponerPared();
-                    jugadorPrefab.playerPrefab.position.set(0,1,0);
-                }
-                if(escenarioPrefab.getJugadores() == 0)
-                {
-                    menu = "ganaste"
-                    createGUIWinLoss("Ganaste",winGroup);
-                    escenarioPrefab.ponerPared();
-                    jugadorPrefab.playerPrefab.position.set(0,1,0);
-                }
                 if(w)
                 {
                     jugadorPrefab.moverx(-0.1);
@@ -531,6 +503,20 @@ function animate()
                 
                 camera.position.y = 10;
                 camera.lookAt( new THREE.Vector3(jugadorPrefab.getPosX(), jugadorPrefab.getPosY(), jugadorPrefab.getPosZ()));
+                if(jugadorPrefab.muerto())
+                {
+                    menu = "perdiste"
+                    createGUIWinLoss("Perdiste",lossGroup);
+                    escenarioPrefab.ponerPared();
+                    jugadorPrefab.playerPrefab.position.set(0,1,0);
+                }
+                if(escenarioPrefab.getJugadores() == 0)
+                {
+                    menu = "ganaste"
+                    createGUIWinLoss("Ganaste",winGroup);
+                    escenarioPrefab.ponerPared();
+                    jugadorPrefab.playerPrefab.position.set(0,1,0);
+                }
             }
             break;
     

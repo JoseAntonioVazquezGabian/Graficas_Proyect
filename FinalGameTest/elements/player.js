@@ -5,6 +5,7 @@ let x, y, z, scene;
 let geometry, material, mesh, tamano, playerPrefab;
 let movimientox, movimientoy, movimientoz, velocidad, vida, arrVida, daño;
 let meshR, meshH;
+let meshGroup;
 // power ups
 let invertirContoles, tiempoInvMov, tiempoInvCont, tiempoAgrTam, tiempoRedTam;
 
@@ -25,7 +26,8 @@ export default class jugador
         this.meshH = 1.5;
         this.spownrate = 0;
         this.daño = 1;
-        this.arrVida = []
+        this.arrVida = [];
+        this.meshGroup = new THREE.Group();
 
         this.invertirContoles = 1;
         this.tiempoInvMov = 0;
@@ -41,6 +43,7 @@ export default class jugador
         cylinder.position.y = 0.75;
         //this.playerPrefab.add(cylinder) //descomentar para ver la colcion
         this.playerPrefab.position.set(this.x,this.y,this.z);
+        this.playerPrefab.add(this.meshGroup);
         scene.add(this.playerPrefab);
     }
 
@@ -61,9 +64,24 @@ export default class jugador
         }
     }
 
+    getTam()
+    {
+        if(this.tiempoRedTam > 0)
+        {
+            return "pequeño";
+        }
+        if(this.tiempoAgrTam > 0)
+        {
+            return "grande";
+        }
+        return "";
+    }
+
     chocar(x,z)
     {
-        // Falta empujar hacia atras el jugador
+        this.z += this.z - z;
+        this.x += this.x - x;
+        this.changeVida(this.vida -1);
     }
 
     muerto()
@@ -78,7 +96,7 @@ export default class jugador
     }
     invMov()
     {
-        this.tiempoInvMov += 3;
+        this.tiempoInvMov += 10;
         this.invertirContoles = 0;
     }
 
@@ -86,18 +104,20 @@ export default class jugador
     {
         this.daño = 2;
         this.velocidad = 0.5;
-        this.meshR = this.meshR*2;
+        this.meshR = 0.8;
         this.tiempoAgrTam = 60;
-        // falta Modificar el sprite
+        this.tiempoRedTam = 0;
+        this.cargarModeloTam(this.playerPrefab, 2)
     }
 
     redTam()
     {
         this.daño = 0;
         this.velocidad = 2;
-        this.meshR = this.meshR/2;
+        this.meshR = 0.2;
         this.tiempoRedTam = 60;
-        // falta Modificar el sprite
+        this.tiempoAgrTam = 0;
+        this.cargarModeloTam(this.playerPrefab, 0.5)
     }
 
     cenPlay()
@@ -177,7 +197,15 @@ export default class jugador
         this.invertirContoles = 1;
         this.tiempoInvMov = 0;
         this.tiempoInvCont = 0;
+        this.tiempoAgrTam = 0;
+        this.tiempoRedTam = 0;
         this.changeVida(0);
+
+        this.velocidad = 1;
+        this.meshGroup.parent.remove(this.meshGroup);
+        this.meshGroup = new THREE.Group();
+        this.playerPrefab.add(this.meshGroup);
+        this.cargarModelo(this.playerPrefab, this.url);
     }
 
     powerUps()
@@ -192,41 +220,46 @@ export default class jugador
         if(this.tiempoInvCont > 0)
         {
             this.tiempoInvCont -= 0.1;
-            this.movimientox = this.movimientox * this.invertirContoles;
-            this.movimientoz = this.movimientoz * this.invertirContoles;
         }
         // Invalidar Movimiento
         if(this.tiempoInvMov < 0)
         {
-            this.tiempoInvCont = 0;
+            this.tiempoInvMov = 0;
             this.invertirContoles = 1;
-
         }
         if(this.tiempoInvMov > 0)
         {
             this.tiempoInvMov -= 0.1;
-            this.movimientox = this.movimientox * this.invertirContoles;
-            this.movimientoz = this.movimientoz * this.invertirContoles;
         }
         // Agrandar tamaño
         if(this.tiempoAgrTam < 0)
         {
             this.tiempoAgrTam = 0;
-            // falta Restablecer Sptrite
+            this.daño = 1;
+            this.velocidad = 1;
+            this.meshR = 0.4;
+            this.cargarModeloTam(this.playerPrefab, 1)
+            this.arrVida.forEach(mesh => mesh.position.y = 1.75);
         }
         if(this.tiempoAgrTam > 0)
         {
             this.tiempoAgrTam -= 0.1;
+            this.arrVida.forEach(mesh => mesh.position.y = 3.75);
         }
         // Reducir tamaño
         if(this.tiempoRedTam < 0)
         {
             this.tiempoRedTam = 0;
-            // falta Restablecer Sptrite
+            this.meshR = 0.4;
+            this.daño = 1;
+            this.velocidad = 1;
+            this.cargarModeloTam(this.playerPrefab, 1);
+            this.arrVida.forEach(mesh => mesh.position.y = 1.75);
         }
         if(this.tiempoRedTam > 0)
         {
             this.tiempoRedTam -= 0.1;
+            this.arrVida.forEach(mesh => mesh.position.y = 1);
         }
         
     }
@@ -234,6 +267,9 @@ export default class jugador
     update()
     {
         this.powerUps();
+
+        this.movimientox = this.movimientox * this.invertirContoles;
+        this.movimientoz = this.movimientoz * this.invertirContoles;
 
         // Rotate player
         if(this.movimientox > 0)
@@ -319,20 +355,54 @@ export default class jugador
     reCargarModelo(url)
     {
         this.cargarModelo(this.playerPrefab, url);
+        this.url = url;
+    }
+
+    cargarModeloTam(game, tam)
+    {
+        try
+        {
+            this.meshGroup.parent.remove(this.meshGroup);
+        }
+        catch{}
+        let group =  new THREE.Group();
+        let url = this.url;
+        var loader = new GLTFLoader();
+        loader.load( url, function ( gltf ) {
+
+            let model = gltf.scene;
+            model.scale.set(0.02 * tam,0.02 * tam,0.02 * tam);
+            model.rotation.y = -1.5;
+            group.add( model );
+
+        }, undefined, function ( e ) {
+            console.error( e );
+        } );
+        this.meshGroup = group;
+        game.add(this.meshGroup);
     }
 
     cargarModelo(game, url)
     {
+        try
+        {
+            this.meshGroup.parent.remove(this.meshGroup);
+        }
+        catch{}
+        this.url = url;
+        let group =  new THREE.Group();
         var loader = new GLTFLoader();
         loader.load( url, function ( gltf ) {
 
             let model = gltf.scene;
             model.scale.set(0.02,0.02,0.02);
             model.rotation.y = -1.5;
-            game.add( model );
+            group.add( model );
 
         }, undefined, function ( e ) {
             console.error( e );
         } );
+        this.meshGroup = group;
+        game.add(this.meshGroup);
     }
 }

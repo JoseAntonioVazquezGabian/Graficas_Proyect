@@ -6,11 +6,13 @@ let geometry, material, mesh, playerPrefab, tamano;
 let movimientox, movimientoy, movimientoz, velocidad, vida, arrVida, daño;
 let jugador, scene;
 let meshR, meshH;
+let posToX, posToZ, steps;
 
 export default class npc
 {
     constructor(x,y,z,scene,jugador)
     {
+        
         this.x = x;
         this.y = y;
         this.z = z;
@@ -22,6 +24,14 @@ export default class npc
         this.meshR = 0.4;
         this.meshH = 1.5;
         this.arrVida = [];
+        this.posToX = this.getRandomIntPos();
+        this.posToZ = this.getRandomIntPos();
+        
+        while(this.x < 2.5 && this.x > -2.5 && this.z > -2.5 && this.z < 2.5)
+        {
+            this.x = Math.floor(Math.random() * ((this.jugador.getTamano()/2) - 1)) * (Math.round(Math.random()) * 2 - 1);
+            this.z = Math.floor(Math.random() * ((this.jugador.getTamano()/2) - 1)) * (Math.round(Math.random()) * 2 - 1);
+        }
 
         this.playerPrefab = new THREE.Group();
         
@@ -63,10 +73,19 @@ export default class npc
         }
     }
 
-    getRandomMove(max)
+    getRandomIntPos()
     {
-        let x = Math.floor(Math.random() * max) * (Math.round(Math.random()) * 2 - 1);
+        let x = Math.floor(Math.random() * ((this.jugador.getTamano()/2) - 1)) * (Math.round(Math.random()) * 2 - 1);
         return x;
+    }
+
+    isDead()
+    {
+        if(this.vida <= 0)
+        {
+            return true;
+        }
+        return false;
     }
 
     kill()
@@ -74,11 +93,59 @@ export default class npc
         this.playerPrefab.parent.remove(this.playerPrefab);
     }
 
+    chocar()
+    {
+        this.z += this.z - this.jugador.getPosZ();
+        this.x += this.x - this.jugador.getPosX();
+        if(this.jugador.getTam() == "")
+        {
+            this.changeVida(this.vida - 1);
+        }
+        if(this.jugador.getTam() == "grande")
+        {
+            this.changeVida(this.vida - 2);
+        }
+    }
+
     update()
     {
-        //falta arreglar movimiento, verificar colision con jugador(quitar una vida, hacerse para atras y hacer daño a jugador)
-        this.movimientox = this.getRandomMove(10) * 0.01;
-        this.movimientoz = this.getRandomMove(10) * 0.01;
+        if(this.x == this.posToX && this.z == this.posToZ)
+        {
+            this.posToX = this.getRandomIntPos();
+            this.posToZ = this.getRandomIntPos();
+        }
+        if(this.x != this.posToX)
+        {
+            this.movimientox = this.posToX - this.x;
+            if(Math.abs(this.movimientox) > 0.05)
+            {
+                this.movimientox = (this.movimientox / Math.abs(this.movimientox)) / 20;
+            }
+        }
+        else
+        {
+            this.movimientox = 0;
+        }
+
+        if(this.z != this.posToZ)
+        {
+            this.movimientoz = this.posToZ - this.z;
+            if(Math.abs(this.movimientoz) > 0.05)
+            {
+                this.movimientoz = (this.movimientoz / Math.abs(this.movimientoz)) / 20;
+            }
+        }
+        else
+        {
+            this.movimientoz = 0;
+        }
+        
+
+        if(Math.sqrt(Math.pow(this.x - this.jugador.getPosX(),2) + Math.pow(this.z - this.jugador.getPosZ(),2)) < this.meshR + this.jugador.cgetClision())
+        {
+            this.jugador.chocar(this.x,this.z);
+            this.chocar();
+        }
         if(this.movimientox > 0)
         {
             if(this.movimientoz > 0)

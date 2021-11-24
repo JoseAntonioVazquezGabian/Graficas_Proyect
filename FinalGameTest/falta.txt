@@ -1,8 +1,2 @@
 falta:
-- Añadir sonido
-- Añadir pantalla ganaste
-- Añadir pantalla perdiste
-- Modificar tamaño al agarrar power ups
-- Colision con NPC
-- Cambiar el sprite del suelo, paredes y PowerUps
-- Modificar el movimiento del NPC que establezca un punto fijo y se mueva a el
+- Cambiar el sprite del suelo, paredes

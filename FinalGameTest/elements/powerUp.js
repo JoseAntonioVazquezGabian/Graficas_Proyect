@@ -1,7 +1,8 @@
 import * as THREE from "../libs/three.module.js";
+import { GLTFLoader } from '../libs/GLTFLoader.js';
 
 let x, y, z, scene, radio, tipo, jugador, variable;
-let mesh, arriba, dead;
+let mesh, arriba, dead, material;
 
 export default class powerUp
 {
@@ -24,26 +25,37 @@ export default class powerUp
         this.dead = false;
 
         const geometry = new THREE.SphereGeometry( this.radio, 15, 10);
-        let material = null;
-        if(this.tipo ==  "RedTam" || this.tipo == "CenPlay")
+        this.mesh = new THREE.Group();
+        if(this.tipo ==  "RedTam" || this.tipo == "AgrTam")
         {
-            material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+            this.cargarModelo(this.mesh, 'models/ChangeTamano.gltf');
         }
-        else if(this.tipo == "InvMov" || this.tipo == "AgrTam")
+        else if(this.tipo == "InvMov" || this.tipo == "CenPlay")
         {
-            material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+            this.cargarModelo(this.mesh, 'models/cactus.gltf');
         }
         else if(this.tipo == "AddLiv" || this.tipo == "invCon")
         {
-            material = new THREE.MeshBasicMaterial( {color: 0x1E5631} );
+            this.cargarModelo(this.mesh, 'models/pizzas.gltf');
         }
-        else
-        {
-            material = new THREE.MeshBasicMaterial( {color: 0x000000} );
-        }
-        this.mesh = new THREE.Mesh( geometry, material );
-        this.mesh.position.set(this.x,this.y,this.z);
+        this.mesh.position.x = this.x;
+        this.mesh.position.y = this.y;
+        this.mesh.position.z = this.z;
         this.scene.add(this.mesh);
+    }
+
+    cargarModelo(game, url)
+    {
+        var loader = new GLTFLoader();
+        loader.load( url, function ( gltf ) {
+
+            let model = gltf.scene;
+            model.scale.set(1,1,1);
+            game.add( model );
+
+        }, undefined, function ( e ) {
+            console.error( e );
+        } );
     }
 
     kill()
@@ -71,6 +83,7 @@ export default class powerUp
                 this.arriba = 1;
             }
             this.mesh.position.y += 0.01 * this.arriba;
+            this.mesh.rotation.y += 0.01;
             if(Math.sqrt(Math.pow(this.x - this.jugador.getPosX(),2) + Math.pow(this.z - this.jugador.getPosZ(),2)) < this.radio + this.jugador.cgetClision())
             {
                 this.dead = true;
