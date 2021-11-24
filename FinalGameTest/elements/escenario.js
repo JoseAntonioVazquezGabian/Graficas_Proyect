@@ -28,30 +28,38 @@ export default class escenario
         this.arrNPC = [];
         this.escenarioPrefab = new THREE.Group();
         //Falta cambiar sprites suelo
+        const textureUrl = "../resources/textures/grass4.jpg";
+        const texture = new THREE.TextureLoader().load(textureUrl);
         geometry = new THREE.BoxGeometry(this.jugador.getTamano(),0.5,this.jugador.getTamano());
-        material = new THREE.MeshLambertMaterial({ color: 0x111111});
+        material = new THREE.MeshLambertMaterial({ map: texture});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(this.x,this.y -0.25,this.z);
         this.escenarioPrefab.add(mesh);
         
         // paredes
         //Falta cambiar sprites pared
+        const TEXTUREURL = "../resources/textures/wall.jpg";
+        const texture1 = new THREE.TextureLoader().load(TEXTUREURL);
         geometry = new THREE.BoxGeometry(this.jugador.getTamano(),20,0);
-        material = new THREE.MeshLambertMaterial({ color: 0x111111});
+        material = new THREE.MeshLambertMaterial({ map: texture1});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(0,10,this.jugador.getTamano()/2);
         this.escenarioPrefab.add(mesh);
 
         //Falta cambiar sprites pared
+        const textureurl = "../resources/textures/wall.jpg";
+        const texture2 = new THREE.TextureLoader().load(textureurl);
         geometry = new THREE.BoxGeometry(this.jugador.getTamano(),20,0);
-        material = new THREE.MeshLambertMaterial({ color: 0x111111});
+        material = new THREE.MeshLambertMaterial({ map: texture2});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(0,10,-this.jugador.getTamano()/2);
         this.escenarioPrefab.add(mesh);
 
         //Falta cambiar sprites pared
-        geometry = new THREE.BoxGeoetry(0,20,this.jugador.getTamano());
-        material = new THREE.MeshLambertMaterial({ color: 0x111111});
+        const TextureUrl = "../resources/textures/wall.jpg";
+        const texture3 = new THREE.TextureLoader().load(TextureUrl);
+        geometry = new THREE.BoxGeometry(0,20,this.jugador.getTamano());
+        material = new THREE.MeshLambertMaterial({ map: texture3});
         mesh = new THREE.Mesh(geometry,material);
         mesh.position.set(-this.jugador.getTamano()/2,10,0);
         this.escenarioPrefab.add(mesh);
