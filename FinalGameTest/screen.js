@@ -19,6 +19,8 @@ let escenarioPrefab, jugadorPrefab;
 let w, a, s, d, p, salto;
 // jugadores
 let jugadores, numJugadores;
+//Audio
+let sound;
 
 init();
 animate();
@@ -89,12 +91,14 @@ function init() {
             if(p)
             {
                 escenarioPrefab.ponerPared();
+                sound.pause();
             }
             else
             {
                 escenarioPrefab.quitarPared();
                 camaraRotar.rotation.y = 0;
                 camera.position.set(10, 10, 10);
+                sound.play();
             }
             camera.position.x = 20;
             camera.position.z = 20;
@@ -190,8 +194,17 @@ function init() {
         if(key == "m")
         {
             // Falta Añadir sonido
+
             mutedo = !mutedo;
-            createGUI(guiGroup);
+            if(mutedo){
+                sound.setVolume(0.0);
+            }else{
+                sound.setVolume(0.5);
+            }
+            
+            if(menu = 'startScreen'){
+                createGUI(guiGroup);
+            }
         }
         if(key == "g"){
             menu = "ganaste";
@@ -240,6 +253,23 @@ function init() {
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
     renderer.setSize(canvas.width, canvas.height);
     renderer.outputEncoding = THREE.sRGBEncoding;
+
+    //Audio
+    // create an AudioListener and add it to the camera
+    const listener = new THREE.AudioListener();
+    camera.add( listener );
+
+    // create a global audio source
+    sound = new THREE.Audio( listener );
+
+    // load a sound and set it as the Audio object's buffer
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load( '../resources/sounds/song.ogg', function( buffer ) {
+	    sound.setBuffer( buffer );
+	    sound.setLoop( true );
+	    sound.setVolume( 0.5 );
+	    sound.play();
+    });
 }
 
 function createGUI(group)
