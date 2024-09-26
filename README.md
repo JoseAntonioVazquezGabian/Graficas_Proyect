@@ -27,6 +27,13 @@ Contaremos con un menú de inicio animado, el cuál contendrá:
   - Configuraciones mínimas del juego (volumen, mapa o cantidad de enemigos).
   - Boton para empezar el juego,
 
+# Menú:
+
+Contaremos con un menú de inicio animado, el cuál contendrá:
+  - Un menú para personalizar el personaje.
+  - Configuraciones mínimas del juego (volumen, mapa o cantidad de enemigos).
+  - Boton para empezar el juego,
+
 # Reglas del juego:
 
 El juego consiste en ser el último jugador en la plataforma.
